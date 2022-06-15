@@ -8,15 +8,8 @@ from dependencies import *
 def api_call():
     # request for the data
     data = requests.get(API)
-
-    # checks for status code and if 200 returns json data
-    status_code_data = data.status_code
-    if status_code_data == 200:
-        json_data = data.json()
-        return json_data
-    else:
-        print(f"Could not connect to API\n"
-              f"Status code: {status_code_data}")
+    json_data = data.json()
+    return json_data
 
 
 
@@ -49,8 +42,13 @@ def get_current_date():
 
 def vehicles_api_to_excel(*args):
     '''
-    Takes arguments as column names and returns an excel file in script directory.
+    Takes string arguments as column names and returns an excel file in script directory.
     '''
+
+    for item in args:
+        if type(item) is not str:
+            raise Exception(f"Only strings are allowed. You have provided {type(item)}")
+
 
     # check if pickle file exist
     if os.path.isfile("vehicles.pkl"):
@@ -62,9 +60,7 @@ def vehicles_api_to_excel(*args):
 
         # checks if any arguments are column names and appends them to a list of all desired columns
         mandatory_columns = ['rnr']
-        for column_name in args:
-            if column_name in columns_list:
-                mandatory_columns.append(column_name)
+        [mandatory_columns.append(column_name) for column_name in args if column_name in columns_list]
 
         # gets the desired columns and outputs excel file
         df = df[[x for x in mandatory_columns]]
@@ -73,6 +69,3 @@ def vehicles_api_to_excel(*args):
     else:
         data_cleaning()
         vehicles_api_to_excel(*args)
-
-
-
